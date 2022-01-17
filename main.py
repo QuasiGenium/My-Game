@@ -22,6 +22,7 @@ all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
+stop_kadr = {'w': 20, 's': 0, 'a': 10, 'd': 30, 'ц': 20, 'ы': 0, 'ф': 10, 'в': 30}
 
 
 class Player(pygame.sprite.Sprite):
@@ -32,6 +33,11 @@ class Player(pygame.sprite.Sprite):
         self.cut_sheet(sheet, columns, rows)
         self.cur_frame = 0
         self.image = self.frames[self.cur_frame]
+        self.down_ani = self.frames[40:50]
+        self.left_ani = self.frames[50:60]
+        self.up_ani = self.frames[60:70]
+        self.right_ani = self.frames[70:80]
+        self.g = {0: self.down_ani, 10: self.left_ani, 20: self.up_ani, 30: self.right_ani}
         self.rect = self.rect.move(pos_x, pos_y)
 
     def cut_sheet(self, sheet, columns, rows):
@@ -43,17 +49,22 @@ class Player(pygame.sprite.Sprite):
                 self.frames.append(sheet.subsurface(pygame.Rect(
                     frame_location, self.rect.size)))
 
-    def update(self):
-        self.cur_frame = (self.cur_frame + 1) % len(self.frames)
-        self.image = self.frames[self.cur_frame]
+    def animation(self, k):
+        try:
+            self.cur_frame = (self.cur_frame + 1) % len(self.g[stop_kadr[k.lower()]])
+            self.image = self.g[stop_kadr[k.lower()]][self.cur_frame]
+        except Exception:
+            pass
 
     def stop(self, k):
-        pass
+        if k.lower() in stop_kadr.keys():
+            self.image = self.frames[stop_kadr[k.lower()]]
 
     def walk_an(self, k):
         pass
 
-    def move(self, ke):
+    def move(self, k):
+        ke = k.lower()
         if ke == 'w' or ke == 'ц':
             self.pos_y -= 5
         elif ke == 's' or ke == 'ы':
@@ -81,16 +92,16 @@ def main():
                 key = event.unicode
             if event.type == pygame.KEYUP:
                 if event.unicode == key:
+                    hero.stop(key)
                     key = ''
+        if key:
+            if p == 1:
+                hero.animation(key)
+                p += 1
+            else:
+                p += 1
+                p %= 6
         hero.move(key)
-        '''
-        if p == 1:
-            hero.update()
-            p += 1
-        else:
-            p += 1
-            p %= 6
-        '''
         screen.fill((0, 0, 0))
         all_sprites.draw(screen)
         enemy_group.draw(screen)
