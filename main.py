@@ -22,6 +22,7 @@ all_sprites = pygame.sprite.Group()
 tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 enemy_group = pygame.sprite.Group()
+boxs_group = pygame.sprite.Group()
 stop_kadr = {'w': 20, 's': 0, 'a': 10, 'd': 30, 'ц': 20, 'ы': 0, 'ф': 10, 'в': 30}
 
 
@@ -38,6 +39,7 @@ class Player(pygame.sprite.Sprite):
         self.up_ani = self.frames[60:70]
         self.right_ani = self.frames[70:80]
         self.g = {0: self.down_ani, 10: self.left_ani, 20: self.up_ani, 30: self.right_ani}
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.rect.move(pos_x, pos_y)
 
     def cut_sheet(self, sheet, columns, rows):
@@ -60,25 +62,48 @@ class Player(pygame.sprite.Sprite):
         if k.lower() in stop_kadr.keys():
             self.image = self.frames[stop_kadr[k.lower()]]
 
-    def walk_an(self, k):
-        pass
-
     def move(self, k):
         ke = k.lower()
         if ke == 'w' or ke == 'ц':
             self.pos_y -= 5
+            for i in boxs_group:
+                if pygame.Rect((self.pos_x + 13, self.pos_y + 10, 70, 1)).colliderect(i):
+                    self.pos_y += 5
+
         elif ke == 's' or ke == 'ы':
             self.pos_y += 5
+            for i in boxs_group:
+                if pygame.Rect((self.pos_x + 13, self.pos_y + 98, 70, 1)).colliderect(i):
+                    self.pos_y -= 5
+
         elif ke == 'd' or ke == 'в':
             self.pos_x += 5
+            for i in boxs_group:
+                if pygame.Rect((self.pos_x + 90, self.pos_y + 16, 1, 80)).colliderect(i):
+                    self.pos_x -= 5
+
         elif ke == 'a' or ke == 'ф':
             self.pos_x -= 5
+            for i in boxs_group:
+                if pygame.Rect((self.pos_x + 6, self.pos_y + 16, 1, 80)).colliderect(i):
+                    self.pos_x += 5
 
+        self.rect = self.image.get_rect().move(self.pos_x, self.pos_y)
+
+
+class Box(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        super().__init__(boxs_group, all_sprites)
+        self.pos_x = x
+        self.pos_y = y
+        self.image = load_image('box.png')
+        self.mask = pygame.mask.from_surface(self.image)
         self.rect = self.image.get_rect().move(self.pos_x, self.pos_y)
 
 
 def main():
     hero = Player(load_image('beg.png'), 10, 8, 500, 300)
+    b = Box(150, 150)
     run = True
     key = ''
     p = 0
@@ -103,9 +128,11 @@ def main():
                 p %= 6
         hero.move(key)
         screen.fill((0, 0, 0))
+        screen.blit(load_image('1611928591_30-p-zadnii-fon-dlya-igri-31.jpg'), (0, 0))
         all_sprites.draw(screen)
         enemy_group.draw(screen)
         player_group.draw(screen)
+        boxs_group.draw(screen)
         pygame.display.flip()
         clock.tick(fps)
 
