@@ -19,9 +19,7 @@ pygame.display.set_caption('Game')
 fps = 60
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
-tiles_group = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
-enemy_group = pygame.sprite.Group()
 boxs_group = pygame.sprite.Group()
 stop_kadr = {'w': 20, 's': 0, 'a': 10, 'd': 30, 'ц': 20, 'ы': 0, 'ф': 10, 'в': 30}
 
@@ -101,6 +99,18 @@ class Box(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(self.pos_x, self.pos_y)
 
 
+class Portal(Box):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.image = load_image('portal.png')
+        self.rect = self.image.get_rect().move(self.pos_x, self.pos_y)
+
+    def in_portal(self, m):
+        if m.rect.colliderect(self.rect):
+            return True
+        return False
+
+
 class Iron_box(Box):
     def __init__(self, x, y):
         super().__init__(x, y)
@@ -115,10 +125,8 @@ class Iron_box(Box):
                 self.mag = True
                 self.oy = m.y
                 self.ox = m.x
-                print(m.x, m.y)
             else:
                 self.mag = False
-                print(False)
                 self.oy = 0
                 self.ox = 0
         except Exception:
@@ -128,12 +136,10 @@ class Iron_box(Box):
 
     def move(self, m):
         if self.mag:
-            print(m.x, m.y)
             mox = m.x - self.ox
             moy = m.y - self.oy
             self.oy = 0
             self.ox = 0
-            print(mox, moy)
             self.pos_x = self.pos_x + mox
             self.pos_y = self.pos_y + moy
 
@@ -148,9 +154,15 @@ class Iron_box(Box):
 
 
 def main():
-    hero = Player(load_image('beg.png'), 10, 8, 500, 300)
-    Box(150, 150)
-    Iron_box(20, 20)
+    hero = Player(load_image('beg.png'), 10, 8, 50, 50)
+    level = 1
+    created = False
+    a = [Box(0, i * 50) for i in range(10)]
+    b = [Box(150, 150), Iron_box(200, 80), Iron_box(80, 180), Iron_box(390, 370)]
+    c = [Box((i + 1) * 50, 0) for i in range(9)]
+    d = [Box(450, (i + 1) * 50) for i in range(6)]
+    e = [Box((i + 1) * 50, 450) for i in range(9)]
+    portal = Portal(900, 600)
     run = True
     key = ''
     mouse = False
@@ -185,6 +197,12 @@ def main():
                     i.magnit(mouserect)
                 except Exception:
                     continue
+        else:
+            for i in boxs_group:
+                try:
+                    i.mag = False
+                except Exception:
+                    continue
 
         if key:
             if p == 1:
@@ -193,11 +211,20 @@ def main():
             else:
                 p += 1
                 p %= 6
+        if portal.in_portal(hero) and level == 1:
+            portal.rect = portal.image.get_rect().move(100, 300)
+            level = 2
+            a.clear()
+            created = False
+        elif portal.in_portal(hero) and level == 2:
+            run = False
+            pygame.quit()
+            sys.exit()
+
         hero.move(key)
         screen.fill((0, 0, 0))
         screen.blit(load_image('1611928591_30-p-zadnii-fon-dlya-igri-31.jpg'), (0, 0))
         all_sprites.draw(screen)
-        enemy_group.draw(screen)
         player_group.draw(screen)
         boxs_group.draw(screen)
         pygame.display.flip()
