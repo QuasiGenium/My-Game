@@ -79,7 +79,7 @@ class Player(pygame.sprite.Sprite):
         elif ke == 'd' or ke == 'в':
             self.pos_x += 5
             for i in boxs_group:
-                if pygame.Rect((self.pos_x + 90, self.pos_y + 16, 1, 80)).colliderect(i):
+                if pygame.Rect((self.pos_x + 80, self.pos_y + 16, 1, 80)).colliderect(i):
                     self.pos_x -= 5
 
         elif ke == 'a' or ke == 'ф':
@@ -101,12 +101,61 @@ class Box(pygame.sprite.Sprite):
         self.rect = self.image.get_rect().move(self.pos_x, self.pos_y)
 
 
+class Iron_box(Box):
+    def __init__(self, x, y):
+        super().__init__(x, y)
+        self.image = load_image('iron_box.png')
+        self.mag = False
+        self.oy = 0
+        self.ox = 0
+
+    def magnit(self, m):
+        try:
+            if m.colliderect(self.rect):
+                self.mag = True
+                self.oy = m.y
+                self.ox = m.x
+                print(m.x, m.y)
+            else:
+                self.mag = False
+                print(False)
+                self.oy = 0
+                self.ox = 0
+        except Exception:
+            self.mag = False
+            self.oy = 0
+            self.ox = 0
+
+    def move(self, m):
+        if self.mag:
+            print(m.x, m.y)
+            mox = m.x - self.ox
+            moy = m.y - self.oy
+            self.oy = 0
+            self.ox = 0
+            print(mox, moy)
+            self.pos_x = self.pos_x + mox
+            self.pos_y = self.pos_y + moy
+
+            self.rect = self.image.get_rect().move(self.pos_x, self.pos_y)
+            for i in all_sprites:
+                if i != self:
+                    if self.rect.colliderect(i):
+                        self.pos_x = self.pos_x - mox
+                        self.pos_y = self.pos_y - moy
+                        self.rect = self.image.get_rect().move(self.pos_x, self.pos_y)
+                        break
+
+
 def main():
     hero = Player(load_image('beg.png'), 10, 8, 500, 300)
-    b = Box(150, 150)
+    Box(150, 150)
+    Iron_box(20, 20)
     run = True
     key = ''
+    mouse = False
     p = 0
+    mouserect = pygame.Rect((0, 0, 1, 1))
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -119,6 +168,24 @@ def main():
                 if event.unicode == key:
                     hero.stop(key)
                     key = ''
+            if event.type == pygame.MOUSEBUTTONDOWN:
+                mouse = True
+                mouserect.x, mouserect.y = event.pos
+            if event.type == pygame.MOUSEBUTTONUP:
+                mouse = False
+                mouserect.x, mouserect.y = 0, 0
+            if event.type == pygame.MOUSEMOTION:
+                if mouse:
+                    mouserect.x, mouserect.y = event.pos
+
+        if mouse:
+            for i in boxs_group:
+                try:
+                    i.move(mouserect)
+                    i.magnit(mouserect)
+                except Exception:
+                    continue
+
         if key:
             if p == 1:
                 hero.animation(key)
