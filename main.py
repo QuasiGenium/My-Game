@@ -16,7 +16,7 @@ pygame.init()
 size = width, height = 1200, 800
 screen = pygame.display.set_mode(size)
 pygame.display.set_caption('Game')
-fps = 60
+fps = 100
 clock = pygame.time.Clock()
 all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
@@ -157,11 +157,13 @@ def main():
     hero = Player(load_image('beg.png'), 10, 8, 50, 50)
     level = 1
     created = False
-    a = [Box(0, i * 50) for i in range(10)]
-    b = [Box(150, 150), Iron_box(200, 80), Iron_box(80, 180), Iron_box(390, 370)]
-    c = [Box((i + 1) * 50, 0) for i in range(9)]
-    d = [Box(450, (i + 1) * 50) for i in range(6)]
-    e = [Box((i + 1) * 50, 450) for i in range(9)]
+    left = [Box(0, i * 50) for i in range(16)]
+    top = [Box((i + 1) * 50, 0) for i in range(23)]
+    right = [Box(23 * 50, i * 50) for i in range(16)]
+    bottom = [Box((i + 1) * 50, 15 * 50) for i in range(22)]
+    other = [Box(150, 150), Iron_box(200, 80), Iron_box(80, 180), Iron_box(390, 370)]
+    a = [Box(450, (i + 1) * 50) for i in range(6)]
+    b = [Box((i + 1) * 50, 450) for i in range(9)]
     portal = Portal(900, 600)
     run = True
     key = ''
@@ -210,11 +212,10 @@ def main():
                 p += 1
             else:
                 p += 1
-                p %= 6
+                p %= 4
         if portal.in_portal(hero) and level == 1:
             portal.rect = portal.image.get_rect().move(100, 300)
             level = 2
-            a.clear()
             created = False
         elif portal.in_portal(hero) and level == 2:
             run = False
@@ -223,7 +224,7 @@ def main():
 
         hero.move(key)
         screen.fill((0, 0, 0))
-        screen.blit(load_image('1611928591_30-p-zadnii-fon-dlya-igri-31.jpg'), (0, 0))
+        screen.blit(load_image('fon.jpg'), (0, 0))
         all_sprites.draw(screen)
         player_group.draw(screen)
         boxs_group.draw(screen)
