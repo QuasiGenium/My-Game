@@ -22,12 +22,17 @@ all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 boxs_group = pygame.sprite.Group()
 stop_kadr = {'w': 20, 's': 0, 'a': 10, 'd': 30, 'ц': 20, 'ы': 0, 'ф': 10, 'в': 30}
-level1_iron = [(200, 80), (80, 180), (390, 370), (190, 310), (320, 220)]
+
+level1_iron = [(200, 80), (80, 180), (390, 370), (190, 310), (320, 220), (12 * 50 + 25, 450)]
+level1_iron.extend([(560 + i * 54, 120) for i in range(6)])
+level1_iron.extend([(570 + i * 54, 180) for i in range(6)])
 level1_o = [(150, 150)]
 level1_o.extend([(450, (i + 1) * 50) for i in range(6)])
-level1_o.extend([((i + 1) * 50, 450) for i in range(9)])
+level1_o.extend([((i + 1) * 50, 450) for i in range(11)])
+level1_o.extend([((i + 1) * 50, 450) for i in range(13, 22)])
+level1_o.extend([(i * 50 + 500, 300) for i in range(9)])
 
-levels = [0, [level1_o, level1_iron, (1000, 650)]]
+levels = [0, [level1_o, level1_iron, (1000, 630), (50, 50)], [[], [], (50, 50), (1000, 630)]]
 
 
 class Player(pygame.sprite.Sprite):
@@ -159,8 +164,20 @@ class Iron_box(Box):
                         break
 
 
-def start_screen():
-    pass
+def screen_picture(a):
+    fon = pygame.transform.scale(load_image(a), (width, height))
+    screen.blit(fon, (0, 0))
+    font = pygame.font.Font(None, 30)
+    while True:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                sys.exit()
+            elif event.type == pygame.KEYDOWN or \
+                    event.type == pygame.MOUSEBUTTONDOWN:
+                return  # начинаем игру
+        pygame.display.flip()
+        clock.tick(fps)
 
 
 def main():
@@ -229,6 +246,8 @@ def main():
                 sys.exit()
             else:
                 level += 1
+                hero.pos_x, hero.pos_y = levels[level][3]
+                hero.rect = hero.image.get_rect().move(hero.pos_x, hero.pos_y)
                 portal.pos_x, portal.pos_y = levels[level][2]
                 portal.rect = portal.image.get_rect().move(portal.pos_x, portal.pos_y)
                 if len(other_o) < len(levels[level][0]):
@@ -239,7 +258,8 @@ def main():
                     i.pos_y = -50
                 for i in range(len(levels[level][0])):
                     other_o[i].pos_x, other_o[i].pos_y = levels[level][0][i]
-                    other_o[i].rect = other_o[i].image.get_rect().move(other_o[i].pos_x, other_o[i].pos_y)
+                for i in other_o:
+                    i.rect = i.image.get_rect().move(i.pos_x, i.pos_y)
 
                 if len(other_iron) < len(levels[level][1]):
                     for i in range(len(levels[level][1]) - len(other_iron)):
@@ -249,7 +269,8 @@ def main():
                     i.pos_y = -50
                 for i in range(len(levels[level][1])):
                     other_iron[i].pos_x, other_iron[i].pos_y = levels[level][1][i]
-                    other_iron[i].rect = other_iron[i].image.get_rect().move(other_iron[i].pos_x, other_iron[i].pos_y)
+                for i in other_iron:
+                    i.rect = i.image.get_rect().move(i.pos_x, i.pos_y)
 
         hero.move(key)
         screen.fill((0, 0, 0))
