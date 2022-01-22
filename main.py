@@ -22,6 +22,12 @@ all_sprites = pygame.sprite.Group()
 player_group = pygame.sprite.Group()
 boxs_group = pygame.sprite.Group()
 stop_kadr = {'w': 20, 's': 0, 'a': 10, 'd': 30, 'ц': 20, 'ы': 0, 'ф': 10, 'в': 30}
+level1_iron = [(200, 80), (80, 180), (390, 370), (190, 310), (320, 220)]
+level1_o = [(150, 150)]
+level1_o.extend([(450, (i + 1) * 50) for i in range(6)])
+level1_o.extend([((i + 1) * 50, 450) for i in range(9)])
+
+levels = [0, [level1_o, level1_iron, (1000, 650)]]
 
 
 class Player(pygame.sprite.Sprite):
@@ -153,18 +159,21 @@ class Iron_box(Box):
                         break
 
 
+def start_screen():
+    pass
+
+
 def main():
     hero = Player(load_image('beg.png'), 10, 8, 50, 50)
-    level = 1
+    level = 0
     created = False
     left = [Box(0, i * 50) for i in range(16)]
     top = [Box((i + 1) * 50, 0) for i in range(23)]
     right = [Box(23 * 50, i * 50) for i in range(16)]
     bottom = [Box((i + 1) * 50, 15 * 50) for i in range(22)]
-    other = [Box(150, 150), Iron_box(200, 80), Iron_box(80, 180), Iron_box(390, 370)]
-    a = [Box(450, (i + 1) * 50) for i in range(6)]
-    b = [Box((i + 1) * 50, 450) for i in range(9)]
-    portal = Portal(900, 600)
+    other_o = []
+    other_iron = []
+    portal = Portal(1000, 650)
     run = True
     key = ''
     mouse = False
@@ -184,6 +193,7 @@ def main():
                     key = ''
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = True
+                print(event.pos)
                 mouserect.x, mouserect.y = event.pos
             if event.type == pygame.MOUSEBUTTONUP:
                 mouse = False
@@ -213,21 +223,39 @@ def main():
             else:
                 p += 1
                 p %= 4
-        if portal.in_portal(hero) and level == 1:
-            portal.rect = portal.image.get_rect().move(100, 300)
-            level = 2
-            created = False
-        elif portal.in_portal(hero) and level == 2:
-            run = False
-            pygame.quit()
-            sys.exit()
+        if portal.in_portal(hero) or level == 0:
+            if level == (len(levels) - 1):
+                pygame.quit()
+                sys.exit()
+            else:
+                level += 1
+                portal.pos_x, portal.pos_y = levels[level][2]
+                portal.rect = portal.image.get_rect().move(portal.pos_x, portal.pos_y)
+                if len(other_o) < len(levels[level][0]):
+                    for i in range(len(levels[level][0]) - len(other_o)):
+                        other_o.append(Box(0, -50))
+                for i in other_o:
+                    i.pos_x = 0
+                    i.pos_y = -50
+                for i in range(len(levels[level][0])):
+                    other_o[i].pos_x, other_o[i].pos_y = levels[level][0][i]
+                    other_o[i].rect = other_o[i].image.get_rect().move(other_o[i].pos_x, other_o[i].pos_y)
+
+                if len(other_iron) < len(levels[level][1]):
+                    for i in range(len(levels[level][1]) - len(other_iron)):
+                        other_iron.append(Iron_box(0, -50))
+                for i in other_iron:
+                    i.pos_x = 0
+                    i.pos_y = -50
+                for i in range(len(levels[level][1])):
+                    other_iron[i].pos_x, other_iron[i].pos_y = levels[level][1][i]
+                    other_iron[i].rect = other_iron[i].image.get_rect().move(other_iron[i].pos_x, other_iron[i].pos_y)
 
         hero.move(key)
         screen.fill((0, 0, 0))
         screen.blit(load_image('fon.jpg'), (0, 0))
         all_sprites.draw(screen)
         player_group.draw(screen)
-        boxs_group.draw(screen)
         pygame.display.flip()
         clock.tick(fps)
 
