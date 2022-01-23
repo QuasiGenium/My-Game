@@ -23,6 +23,7 @@ player_group = pygame.sprite.Group()
 boxs_group = pygame.sprite.Group()
 stop_kadr = {'w': 20, 's': 0, 'a': 10, 'd': 30, 'ц': 20, 'ы': 0, 'ф': 10, 'в': 30}
 
+rooms = [0, 'Ангар', '']
 level1_iron = [(200, 80), (80, 180), (390, 370), (190, 310), (320, 220), (12 * 50 + 25, 450)]
 level1_iron.extend([(560 + i * 54, 120) for i in range(6)])
 level1_iron.extend([(570 + i * 54, 180) for i in range(6)])
@@ -164,10 +165,21 @@ class Iron_box(Box):
                         break
 
 
-def screen_picture(a):
-    fon = pygame.transform.scale(load_image(a), (width, height))
-    screen.blit(fon, (0, 0))
-    font = pygame.font.Font(None, 30)
+def image_text(a='', intro_text=[]):
+    if a:
+        fon = pygame.transform.scale(load_image(a), (width, height))
+        screen.blit(fon, (0, 0))
+    if intro_text:
+        font = pygame.font.Font(None, 30)
+        text_coord = 500
+        for line in intro_text:
+            string_rendered = font.render(line, 1, pygame.Color('black'))
+            intro_rect = string_rendered.get_rect()
+            text_coord += 50
+            intro_rect.top = text_coord
+            intro_rect.x = 750
+            text_coord += intro_rect.height
+            screen.blit(string_rendered, intro_rect)
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -196,6 +208,7 @@ def main():
     mouse = False
     p = 0
     mouserect = pygame.Rect((0, 0, 1, 1))
+    pere = False
     while run:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
@@ -246,6 +259,8 @@ def main():
                 sys.exit()
             else:
                 level += 1
+                hero.stop(key)
+                key = ''
                 hero.pos_x, hero.pos_y = levels[level][3]
                 hero.rect = hero.image.get_rect().move(hero.pos_x, hero.pos_y)
                 portal.pos_x, portal.pos_y = levels[level][2]
@@ -271,12 +286,16 @@ def main():
                     other_iron[i].pos_x, other_iron[i].pos_y = levels[level][1][i]
                 for i in other_iron:
                     i.rect = i.image.get_rect().move(i.pos_x, i.pos_y)
+                pere = True
 
         hero.move(key)
         screen.fill((0, 0, 0))
         screen.blit(load_image('fon.jpg'), (0, 0))
         all_sprites.draw(screen)
         player_group.draw(screen)
+        if pere:
+            image_text('pere.png', [f'Уровень {level}', str(rooms[level])])
+        pere = False
         pygame.display.flip()
         clock.tick(fps)
 
