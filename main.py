@@ -23,7 +23,7 @@ player_group = pygame.sprite.Group()
 boxs_group = pygame.sprite.Group()
 stop_kadr = {'w': 20, 's': 0, 'a': 10, 'd': 30, 'ц': 20, 'ы': 0, 'ф': 10, 'в': 30}
 
-rooms = [0, 'Ангар', '']
+rooms = [0, 'Ангар', 'Узкие коридоры']
 level1_iron = [(200, 80), (80, 180), (390, 370), (190, 310), (320, 220), (12 * 50 + 25, 450)]
 level1_iron.extend([(560 + i * 54, 120) for i in range(6)])
 level1_iron.extend([(570 + i * 54, 180) for i in range(6)])
@@ -177,7 +177,7 @@ def image_text(a='', intro_text=[]):
             intro_rect = string_rendered.get_rect()
             text_coord += 50
             intro_rect.top = text_coord
-            intro_rect.x = 750
+            intro_rect.x = 730
             text_coord += intro_rect.height
             screen.blit(string_rendered, intro_rect)
     while True:
@@ -255,8 +255,7 @@ def main():
                 p %= 4
         if portal.in_portal(hero) or level == 0:
             if level == (len(levels) - 1):
-                pygame.quit()
-                sys.exit()
+                return
             else:
                 level += 1
                 hero.stop(key)
@@ -301,4 +300,8 @@ def main():
 
 
 if __name__ == '__main__':
+    image_text('tutorial.png')
+    image_text('suget.png')
     main()
+    image_text('free.jpg')
+    image_text('ending.png')
