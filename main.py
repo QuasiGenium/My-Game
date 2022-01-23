@@ -219,7 +219,6 @@ def image_text(a='', intro_text=[]):
 def main():
     hero = Player(load_image('beg.png'), 10, 8, 50, 50)
     level = 0
-    created = False
     left = [Box(0, i * 50) for i in range(16)]
     top = [Box((i + 1) * 50, 0) for i in range(23)]
     right = [Box(23 * 50, i * 50) for i in range(16)]
