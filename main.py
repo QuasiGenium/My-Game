@@ -23,7 +23,7 @@ player_group = pygame.sprite.Group()
 boxs_group = pygame.sprite.Group()
 stop_kadr = {'w': 20, 's': 0, 'a': 10, 'd': 30, 'ц': 20, 'ы': 0, 'ф': 10, 'в': 30}
 
-rooms = [0, 'Ангар', 'Узкие коридоры']
+rooms = [0, 'Ангар', 'Узкие коридоры', 'Путь к свободе']
 level1_iron = [(200, 80), (80, 180), (390, 370), (190, 310), (320, 220), (12 * 50 + 25, 450)]
 level1_iron.extend([(560 + i * 54, 120) for i in range(6)])
 level1_iron.extend([(570 + i * 54, 180) for i in range(6)])
@@ -33,7 +33,31 @@ level1_o.extend([((i + 1) * 50, 450) for i in range(11)])
 level1_o.extend([((i + 1) * 50, 450) for i in range(13, 22)])
 level1_o.extend([(i * 50 + 500, 300) for i in range(9)])
 
-levels = [0, [level1_o, level1_iron, (1000, 630), (50, 50)], [[], [], (50, 50), (1000, 630)]]
+level12_iron = [(490, 679), (330, 120)]
+level12_iron.extend([(400, 350 + i * 50) for i in range(5)])
+level12_iron.extend([(950 + i * 50, 250) for i in range(4)])
+level2_o = []
+level2_o.extend([(1100 - i * 50, 600) for i in range(19) if i != 8])
+level2_o.extend([(150, 600 - i * 50) for i in range(5)])
+level2_o.extend([((i + 1) * 50, 250) for i in range(18)])
+level2_o.extend([(i * 50 + 200, 400) for i in range(19) if i != 4])
+level2_o.extend([(i * 50 + 650, 550) for i in range(3)])
+level2_o.extend([(350, 450 + i * 50) for i in range(2)])
+level2_o.extend([(450, 450 + i * 50) for i in range(3)])
+level3_iron = [(1000, 650), (1000, 700)]
+level3_iron.extend([(618 + i * 50, 350) for i in range(4)])
+level3_iron.extend([(640 + i * 50, 400) for i in range(3)])
+level3_o = [(397, 89), (799, 168), (1056, 144), (1070, 235), (274, 609), (464, 690), (683, 580)]
+level3_o.extend([(150, (i + 1) * 50) for i in range(14) if i != 6 and i != 7])
+level3_o.extend([(1000, 300 + i * 50) for i in range(7)])
+level3_o.extend([(850, 450 + i * 50) for i in range(6)])
+level3_o.extend([(200 + i * 50, 450) for i in range(13) if i != 4 and i != 5])
+level3_o.extend([(200 + i * 50, 300) for i in range(19) if i != 6 and i != 5])
+level3_o.extend([(400 + i * 50, 250) for i in range(4)])
+level3_o.extend([(350 + i * 50, 500) for i in range(4)])
+
+levels = [0, [level1_o, level1_iron, (1000, 630), (50, 50)], [level2_o, level12_iron, (50, 100), (1000, 645)],
+          [level3_o, level3_iron, (1300, 350), (50, 350)]]
 
 
 class Player(pygame.sprite.Sprite):
@@ -223,7 +247,6 @@ def main():
                     key = ''
             if event.type == pygame.MOUSEBUTTONDOWN:
                 mouse = True
-                print(event.pos)
                 mouserect.x, mouserect.y = event.pos
             if event.type == pygame.MOUSEBUTTONUP:
                 mouse = False
@@ -285,6 +308,10 @@ def main():
                     other_iron[i].pos_x, other_iron[i].pos_y = levels[level][1][i]
                 for i in other_iron:
                     i.rect = i.image.get_rect().move(i.pos_x, i.pos_y)
+                if level == 3:
+                    for i in range(7, 10):
+                        right[i].pos_x += 150
+                        right[i].rect = right[i].image.get_rect().move(right[i].pos_x, right[i].pos_y)
                 pere = True
 
         hero.move(key)
@@ -300,6 +327,7 @@ def main():
 
 
 if __name__ == '__main__':
+    image_text('start_screen.png')
     image_text('tutorial.png')
     image_text('suget.png')
     main()
